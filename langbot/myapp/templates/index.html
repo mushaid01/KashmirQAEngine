@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>AskIt</title>
+  <style>
+    /* Basic styling for chat window */
+    #chat-container {
+      width: 500px;
+      height: 400px;
+      border: 1px solid #ccc;
+      margin: 0 auto;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .bubble {
+      max-width: 70%;
+      margin: 5px;
+      padding: 8px 12px;
+      border-radius: 10px;
+    }
+    .user-bubble {
+      align-self: flex-end;
+      background-color: #d1f1ff;
+    }
+    .bot-bubble {
+      align-self: flex-start;
+      background-color: #f1f1f1;
+    }
+    #chat-input {
+      display: flex;
+      width: 500px;
+      margin: 0 auto;
+      margin-top: 10px;
+    }
+    #message {
+      flex: 1;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center;">AskIt</h1>
+  <div id="chat-container">
+    <!-- Chat bubbles go here dynamically -->
+  </div>
+
+  <!-- Input field and send button -->
+  <div id="chat-input">
+    <input type="text" id="message" placeholder="Type your message..." />
+    <button id="sendBtn">Send</button>
+  </div>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Function to append a message bubble to the chat
+    function appendMessage(text, sender = 'user') {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      if(sender === 'user') {
+        bubble.classList.add('user-bubble');
+      } else {
+        bubble.classList.add('bot-bubble');
+      }
+      bubble.textContent = text;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll
+    }
+
+    // Send button click handler
+    sendBtn.addEventListener('click', () => {
+      const userMessage = messageInput.value.trim();
+      if(!userMessage) return;
+
+      // Display user's message immediately
+      appendMessage(userMessage, 'user');
+
+      // Clear input
+      messageInput.value = '';
+
+      // Send request to the backend
+      const csrfToken = getCookie('csrftoken');  // We'll define getCookie below
+
+      fetch('/chat/send_message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
+        },
+        body: new URLSearchParams({
+          'message': userMessage
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.bot_message) {
+          appendMessage(data.bot_message, 'bot');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    });
+
+    // If you want to send message with Enter key
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        sendBtn.click();
+      }
+    });
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+</body>
+</html>
