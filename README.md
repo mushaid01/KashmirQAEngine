@@ -38,8 +38,8 @@ Welcome to the **KashmirQAEngine**—an intelligent AI-driven solution to answer
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/kashmir-knowledge-hub.git
-   cd kashmir-knowledge-hub
+   git clone https://github.com/mushaid01/KashmirQAEngine
+   cd KashmirQAEngine
    ```
 
 2. **Set Up Virtual Environment**:
@@ -55,11 +55,6 @@ Welcome to the **KashmirQAEngine**—an intelligent AI-driven solution to answer
    ```
 
 4. **Create Environment Variables**:
-   - Rename `.env.example` to `.env`:
-     ```bash
-     mv .env.example .env  # For Linux/Mac
-     ren .env.example .env # For Windows
-     ```
    - Add your API keys in the `.env` file:
      ```
      GROQ_API_KEY=your_groq_api_key
